@@ -1,18 +1,18 @@
 // src/components/Login.js
 
-import React, { useState, useContext } from 'react';
-import { AuthContext } from '../../context/AuthContext';
-import { Navigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setAlert } from '../../actions/alert';
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import { Navigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setAlert } from "../../actions/alert";
 
 const Login = () => {
   const { auth, login } = useContext(AuthContext);
   const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   const { email, password } = formData;
@@ -26,25 +26,29 @@ const Login = () => {
     e.preventDefault();
     try {
       await login({ email, password });
-      dispatch(setAlert('Logged in successfully!', 'success'));
+      dispatch(setAlert("Logged in successfully!", "success"));
     } catch (error) {
-      dispatch(setAlert('Login failed. Please try again.', 'danger'));
+      dispatch(setAlert("Login failed. Please try again.", "danger"));
     }
-  };  
+  };
 
   // Redirect to dashboard if authenticated
   if (auth.isAuthenticated) {
-    console.log('User is authenticated. Redirecting to dashboard...');
+    console.log("User is authenticated. Redirecting to dashboard...");
     return <Navigate to="/dashboard" replace />;
   }
-  
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Login</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
+        Login
+      </h2>
       <form onSubmit={onSubmit}>
         <div className="mb-4">
-          <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="email">
+          <label
+            className="block text-gray-700 dark:text-gray-300 mb-2"
+            htmlFor="email"
+          >
             Email
           </label>
           <input
@@ -53,12 +57,15 @@ const Login = () => {
             value={email}
             onChange={onChange}
             required
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 transition-transform duration-300 ease-in-out focus:scale-105"
             placeholder="Enter your email"
           />
         </div>
         <div className="mb-6">
-          <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="password">
+          <label
+            className="block text-gray-700 dark:text-gray-300 mb-2"
+            htmlFor="password"
+          >
             Password
           </label>
           <input
@@ -67,7 +74,7 @@ const Login = () => {
             value={password}
             onChange={onChange}
             required
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 transition-transform duration-300 ease-in-out focus:scale-105"
             placeholder="Enter your password"
           />
         </div>
