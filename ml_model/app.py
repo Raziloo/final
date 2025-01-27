@@ -21,8 +21,8 @@ def predict_stock_price():
 
     try:
         # Define prediction parameters
-        start = dt.datetime(2014, 1, 1)
-        end = dt.datetime(2024, 1, 1)
+        start = dt.datetime(2021, 1, 1)
+        end = dt.datetime.now()
         prediction_days = 60
         model_path = os.path.join("models", f"{stock_symbol}_model.keras")
         scaler_path = os.path.join("models", f"{stock_symbol}_scaler.pkl")

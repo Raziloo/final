@@ -10,6 +10,9 @@ const initialState = {
   isAuthenticated: false,
   loading: false,
   user: null,
+  auth: { 
+    isAuthenticated: true,
+  }
 };
 
 const middleware = [thunk];

@@ -51,12 +51,12 @@ const AuthProvider = ({ children }) => {
         setAuthToken(token);
 
         try {
-          const res = await api.get('/auth/user');
+          // const res = await api.get('/auth/user');
           setAuth({
             token,
             isAuthenticated: true,
             loading: false,
-            user: res.data,
+            // user: res.data,
           });
         } catch (err) {
           console.error(err);
