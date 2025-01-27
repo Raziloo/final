@@ -9,6 +9,7 @@ const Dashboard = () => {
   const [timeRange, setTimeRange] = useState('1D');
   const [stockData, setStockData] = useState(null);
   const [error, setError] = useState('');
+  const [prediction, setPrediction] = useState(null); // To store prediction data
 
   const fetchStockData = async (range) => {
     try {
@@ -54,14 +55,50 @@ const Dashboard = () => {
     }
   };
 
+  const fetchPrediction = async () => {
+    try {
+      setError('');
+      setPrediction(null);
+
+      const response = await fetch('http://127.0.0.1:5000/api/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ticker }),
+      });
+
+      if (!response.ok) throw new Error(`Prediction request failed with status ${response.status}`);
+
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+
+      setPrediction(data);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="p-6 min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Trading Dashboard</h1>
 
       <TickerInput ticker={ticker} setTicker={setTicker} handleAnalyze={() => fetchStockData(timeRange)} />
+      <button
+        className="bg-blue-500 text-white px-4 py-2 rounded"
+        onClick={fetchPrediction}
+      >
+        Get Prediction
+      </button>
+
       <TimeRangeButtons timeRange={timeRange} setTimeRange={setTimeRange} fetchStockData={fetchStockData} />
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
+      {prediction && (
+        <p className="text-green-500 mb-4">
+          Predicted price for {prediction.stock_symbol} on {prediction.date} is ${prediction.predicted_price}
+        </p>
+      )}
       {stockData && <StockChart stockData={stockData} ticker={ticker} timeRange={timeRange} />}
     </div>
   );
