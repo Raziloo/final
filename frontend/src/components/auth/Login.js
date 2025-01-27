@@ -1,18 +1,18 @@
 // src/components/Login.js
 
-import React, { useState, useContext } from "react";
-import { AuthContext } from "../../context/AuthContext";
+import React, { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setAlert } from "../../actions/alert";
 
 const Login = () => {
-  const { auth, login } = useContext(AuthContext);
+  const { isAuthenticated, login } = useAuth(); // Access isAuthenticated and login from AuthContext
   const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: "niv@gmail.com",
+    password: "123456",
   });
 
   const { email, password } = formData;
@@ -21,19 +21,39 @@ const Login = () => {
   const onChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
+  // Validate email format
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  // Validate password strength
+  const isValidPassword = (password) =>
+    password.length >= 6;
+
   // Handle form submission
   const onSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation checks
+    if (!isValidEmail(email)) {
+      dispatch(setAlert("Please enter a valid email address.", "danger"));
+      return;
+    }
+    if (!isValidPassword(password)) {
+      dispatch(setAlert("Password must be at least 6 characters long.", "danger"));
+      return;
+    }
+
     try {
       await login({ email, password });
       dispatch(setAlert("Logged in successfully!", "success"));
     } catch (error) {
-      dispatch(setAlert("Login failed. Please try again.", "danger"));
+      console.error(error);
+      dispatch(setAlert("Invalid email or password.", "danger"));
     }
   };
 
   // Redirect to dashboard if authenticated
-  if (auth.isAuthenticated) {
+  if (isAuthenticated) {
     console.log("User is authenticated. Redirecting to dashboard...");
     return <Navigate to="/dashboard" replace />;
   }

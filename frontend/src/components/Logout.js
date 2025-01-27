@@ -14,11 +14,14 @@ const Logout = () => {
   };
 
   return (
-    <LuLogOut 
-      onClick={handleLogout} 
-      className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white cursor-pointer text-lg mx-3" 
-      title="Logout"
-    />
+    <div 
+    onClick={handleLogout} 
+    className="flex items-center cursor-pointer hover:text-gray-700 dark:hover:text-white transition-colors duration-300"
+    title="Logout"
+  >
+    <h1 className="mx-1">Logout</h1>
+    <LuLogOut className="text-lg" />
+  </div>
   );
 };
 

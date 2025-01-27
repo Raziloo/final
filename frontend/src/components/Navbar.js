@@ -1,60 +1,94 @@
 // src/components/Navbar.js
 
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext";
-import { FaSun, FaMoon } from "react-icons/fa"; // Import icons
+import { FaBars, FaMoon, FaSignInAlt, FaSun } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
+import MobileMenu from "./MobileMenu";
 import Logout from "../components/Logout";
 
 const Navbar = () => {
   const { darkMode, toggleDarkMode } = useContext(ThemeContext);
+  const { isAuthenticated } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow">
+    <nav className="bg-white dark:bg-gray-800 shadow-sm h-14 fixed w-full z-50 transition-colors duration-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          {/* Left side - Logo and Links */}
-          <div className="flex items-center justify-center space-x-8">
-            <div className="flex-shrink-0 flex items-center">
+        <div className="flex justify-between items-center h-14">
+          {/* Left side - Logo */}
+          <div className="flex items-center">
+            <Link
+              to="/"
+              className="text-3xl font-bold text-blue-600 dark:text-blue-400 transition-transform duration-300 hover:scale-105"
+            >
+              YourApp
+            </Link>
+          </div>
+
+          {/* Desktop Links */}
+          <div className="hidden sm:flex items-center space-x-6">
+            <Link
+              to="/dashboard"
+              className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white px-2 py-1 rounded-md text-sm font-medium"
+            >
+              Dashboard
+            </Link>
+            <Link
+              to="/profile"
+              className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white px-2 py-1 rounded-md text-sm font-medium"
+            >
+              Profile
+            </Link>
+            {isAuthenticated ? (
+              <Logout />
+            ) : (
               <Link
-                to="/"
-                className="text-xl font-bold text-blue-600 dark:text-blue-400"
+                to="/login"
+                className="flex items-center text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white px-2 py-1 rounded-md text-sm font-medium"
               >
-                YourApp
+                <FaSignInAlt className="mr-2" />
+                Login
               </Link>
-            </div>
-            <div className="sm:flex sm:space-x-8">
-              <Link
-                to="/dashboard"
-                className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+            )}
+            {/* Dark Mode Toggle */}
+            <div
+              onClick={toggleDarkMode}
+              className={`w-14 h-7 flex items-center rounded-full cursor-pointer ${
+                darkMode ? "bg-gray-700" : "bg-gray-300"
+              } p-1 transition-all duration-300`}
+            >
+              <div
+                className={`w-6 h-6 flex items-center justify-center bg-white rounded-full shadow-md transform ${
+                  darkMode ? "translate-x-7" : "translate-x-0"
+                } transition-transform duration-300`}
               >
-                Dashboard
-              </Link>
-              <Link
-                to="/profile"
-                className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Profile
-              </Link>
+                {darkMode ? (
+                  <FaMoon className="text-gray-700" />
+                ) : (
+                  <FaSun className="text-yellow-500" />
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Right side - Dark Mode Toggle */}
-          <div className="flex items-center">
-            <Logout />
+          {/* Mobile Menu Button */}
+          <div className="sm:hidden flex items-center">
             <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-full bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500 transition duration-200"
-              aria-label="Toggle Dark Mode"
+              onClick={toggleMenu}
+              className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white focus:outline-none"
             >
-              {darkMode ? <FaSun /> : <FaMoon />}
+              <FaBars size={20} />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu (optional) */}
-      {/* Add your mobile menu implementation here if needed */}
+      {/* Mobile Menu */}
+      <MobileMenu isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
     </nav>
   );
 };

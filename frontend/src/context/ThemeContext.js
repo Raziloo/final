@@ -7,31 +7,29 @@ export const ThemeContext = createContext();
 
 // Create Provider
 const ThemeProvider = ({ children }) => {
-  // Initialize theme state based on localStorage or system preference
   const [darkMode, setDarkMode] = useState(() => {
-    // Check if user has a saved preference
     const savedTheme = localStorage.getItem('darkMode');
     if (savedTheme !== null) {
       return JSON.parse(savedTheme);
     }
-    // If no saved preference, use system preference
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
-  // Toggle dark mode
-  const toggleDarkMode = () => {
-    setDarkMode((prevMode) => !prevMode);
-  };
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
 
-  // Update HTML class and localStorage whenever darkMode changes
   useEffect(() => {
     const root = window.document.documentElement;
+
+    // Add the transition class for smooth animation
+    root.classList.add('theme-transition');
+    setTimeout(() => root.classList.remove('theme-transition'), 1500); // Duration of the transition
+
     if (darkMode) {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
-    // Save user preference to localStorage
+
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
   }, [darkMode]);
 

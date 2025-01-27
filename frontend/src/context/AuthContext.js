@@ -69,10 +69,10 @@ const AuthProvider = ({ children }) => {
           });
         }
       } else {
-        setAuth({
-          ...auth,
+        setAuth((prevAuth) => ({
+          ...prevAuth,
           loading: false,
-        });
+        }));
       }
     };
 
@@ -84,27 +84,49 @@ const AuthProvider = ({ children }) => {
     try {
       const res = await api.post('/auth/login', formData);
       const { token } = res.data;
+  
+      // Set token in localStorage and headers
       localStorage.setItem('token', token);
       setAuthToken(token);
+  
+      // Update auth state
       setAuth({
         token,
         isAuthenticated: true,
         loading: false,
+        user: res.data.user, // Assuming your backend sends user details in `res.data.user`
       });
+  
+      // Dispatch success action
       dispatch({
         type: LOGIN_SUCCESS,
         payload: res.data,
       });
     } catch (err) {
       console.error(err);
+  
+      // Extract error message if available
+      const errorMessage =
+        err.response && err.response.data && err.response.data.message
+          ? err.response.data.message
+          : 'Login failed. Please try again.';
+  
+      // Update auth state to reflect failure
       setAuth({
         token: null,
         isAuthenticated: false,
         loading: false,
         user: null,
       });
+  
+      // Clear token from localStorage
       localStorage.removeItem('token');
+  
+      // Dispatch failure action
       dispatch({ type: LOGIN_FAIL });
+  
+      // Set an alert for the user with the error message
+      dispatch(setAlert(errorMessage, 'danger'));
     }
   };
 
@@ -123,7 +145,7 @@ const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout }}>
+    <AuthContext.Provider value={{ ...auth, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

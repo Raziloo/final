@@ -3,6 +3,28 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Add smooth transition for background and text */
+.theme-transition {
+  @apply transition-bg duration-500 ease-in-out;
+}
+
+/* Default light mode styles */
+html {
+  @apply bg-gray-100 text-gray-800;
+}
+
+/* Dark mode styles */
+html.dark {
+  @apply bg-gray-900 text-gray-100;
+}
+
+/* Optional: Cool gradient effect */
+html.theme-transition {
+  background-image: linear-gradient(120deg, #f3f4f6, #1f2937);
+  background-size: 400% 400%;
+  animation: gradient 0.5s ease-in-out;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
