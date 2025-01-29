@@ -45,7 +45,8 @@ const Login = () => {
 
     try {
       await login({ email, password });
-      dispatch(setAlert("Logged in successfully!", "success"));
+      dispatch(setAlert("Logged in successfully", "success"));
+      
     } catch (error) {
       console.error(error);
       dispatch(setAlert("Invalid email or password.", "danger"));
@@ -54,7 +55,6 @@ const Login = () => {
 
   // Redirect to dashboard if authenticated
   if (isAuthenticated) {
-    console.log("User is authenticated. Redirecting to dashboard...");
     return <Navigate to="/dashboard" replace />;
   }
 
