@@ -9,12 +9,6 @@ const TickerInput = ({ ticker, setTicker, handleAnalyze }) => (
       onChange={(e) => setTicker(e.target.value)}
       className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
     />
-    <button
-      onClick={handleAnalyze}
-      className="px-6 py-2 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-600 dark:hover:bg-blue-400 transition"
-    >
-      Analyze
-    </button>
   </div>
 );
 
