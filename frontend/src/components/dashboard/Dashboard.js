@@ -1,59 +1,67 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import TickerInput from "./TickerInput";
 import TimeRangeButtons from "./TimeRangeButtons";
 import StockChart from "./StockChart";
 import { getPolygonParams } from "../../utils/utils";
+import PastPredictions from "./PastPredictions";
 
 const Dashboard = () => {
   const [ticker, setTicker] = useState("");
-  const [timeRange, setTimeRange] = useState("1D");
+  const [timeRange, setTimeRange] = useState("1M");
   const [stockData, setStockData] = useState(null);
   const [currentPrice, setCurrentPrice] = useState(null);
   const [error, setError] = useState("");
   const [prediction, setPrediction] = useState(null);
   const [loadingPrediction, setLoadingPrediction] = useState(false);
+  const [pastPredictions, setPastPredictions] = useState([]);
 
-  const fetchStockData = async (range) => {
+  useEffect(() => {
+    const storedPredictions = JSON.parse(localStorage.getItem("pastPredictions")) || [];
+    setPastPredictions(storedPredictions);
+  }, []);
+
+  const fetchStockData = async (range = timeRange, symbol = ticker) => { // Ensure range defaults to current timeRange
     try {
       setError("");
       setStockData(null);
-
+  
+      console.log(`Fetching stock data for: ${symbol}, Range: ${range}`); // Debugging log
+  
       const { multiplier, timespan, from, to } = getPolygonParams(range);
-
-      const polygonURL = `https://api.polygon.io/v2/aggs/ticker/${ticker.toUpperCase()}/range/${multiplier}/${timespan}/${from}/${to}?adjusted=true&sort=asc&limit=5000&apiKey=${
+    
+      if (!multiplier || !timespan || !from || !to) {
+        throw new Error("Invalid time range");
+      }
+  
+      const polygonURL = `https://api.polygon.io/v2/aggs/ticker/${symbol.toUpperCase()}/range/${multiplier}/${timespan}/${from}/${to}?adjusted=true&sort=asc&limit=5000&apiKey=${
         process.env.REACT_APP_POLYGON_API_KEY
       }`;
-
+  
       const response = await fetch(polygonURL);
-      if (!response.ok)
-        throw new Error(`Request failed with status ${response.status}`);
-
+      if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+  
       const data = await response.json();
-      if (!data.results || !Array.isArray(data.results))
-        throw new Error("No valid data returned");
-
+      if (!data.results || !Array.isArray(data.results)) throw new Error("No valid data returned");
+  
       const results = data.results;
-
+  
       const allLabels = results.map((bar) => {
         const dateObj = new Date(bar.t);
         return range === "1D"
-          ? dateObj.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })
+          ? dateObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
           : dateObj.toLocaleDateString();
       });
-
+  
       const allData = results.map((bar) => bar.o);
-
+  
       const latestPrice = results[results.length - 1].c;
-
+  
       setStockData({
         labels: allLabels,
         datasets: [
           {
-            label: `${ticker.toUpperCase()} Stock Price (${range})`,
+            label: `${symbol.toUpperCase()} Stock Price (${range})`,
             data: allData,
             borderColor: "rgba(75,192,192,1)",
             borderWidth: 2,
@@ -62,9 +70,10 @@ const Dashboard = () => {
           },
         ],
       });
-
+  
       setCurrentPrice(latestPrice);
     } catch (err) {
+      console.error("Error fetching stock data:", err.message);
       setError(err.message);
     }
   };
@@ -77,21 +86,27 @@ const Dashboard = () => {
 
       const response = await fetch("http://127.0.0.1:5000/api/predict", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticker }),
       });
 
-      if (!response.ok)
-        throw new Error(
-          `Prediction request failed with status ${response.status}`
-        );
+      if (!response.ok) throw new Error(`Prediction request failed with status ${response.status}`);
 
       const data = await response.json();
       if (data.error) throw new Error(data.error);
 
       setPrediction(data);
+
+      // Save the prediction to localStorage
+      const newPrediction = {
+        ticker: ticker.toUpperCase(),
+        predictedPrice: data.predicted_price.toFixed(2),
+        date: new Date().toLocaleString(),
+      };
+
+      const updatedPredictions = [newPrediction, ...pastPredictions].slice(0, 5); // Keep last 5 predictions
+      setPastPredictions(updatedPredictions);
+      localStorage.setItem("pastPredictions", JSON.stringify(updatedPredictions));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -246,6 +261,7 @@ const Dashboard = () => {
           </motion.div>
         )}
 
+
         {/* Stock Chart */}
         {stockData && (
           <motion.div
@@ -262,7 +278,9 @@ const Dashboard = () => {
           </motion.div>
         )}
       </div>
+      <PastPredictions pastPredictions={pastPredictions} onSelectPrediction={fetchStockData} range={timeRange}/>
     </motion.div>
+    
   );
 };
 
