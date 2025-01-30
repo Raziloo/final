@@ -8,7 +8,7 @@ const Alert = () => {
   const alerts = useSelector((state) => state.alert);
 
   return (
-    <div className="fixed top-55 right-4 z-50 space-y-4">
+    <div className="fixed top-20 right-4 z-50 flex flex-col space-y-4">
       <AnimatePresence>
         {alerts !== null &&
           alerts.length > 0 &&

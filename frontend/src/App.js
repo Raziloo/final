@@ -1,15 +1,17 @@
 // src/App.js
 
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from './components/Home';
-import Register from './components/auth/Register';
-import Login from './components/auth/Login';
-import Dashboard from './components/dashboard/Dashboard';
-import PrivateRoute from './components/routing/PrivateRoute';
-import Alert from './components/layout/Alert';
-import Layout from './components/Layout'; // Layout wraps content
-import Logout from './components/Logout';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Home from "./components/Home";
+import Register from "./components/auth/Register";
+import Login from "./components/auth/Login";
+import Dashboard from "./components/dashboard/Dashboard";
+import PrivateRoute from "./components/routing/PrivateRoute";
+import Alert from "./components/layout/Alert";
+import Layout from "./components/Layout"; // Layout wraps content
+import Logout from "./components/Logout";
+import About from "./components/About";
+import OurModel from "./components/OurModel";
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/ourmodel" element={<OurModel />} />
           <Route
             path="/dashboard"
             element={
