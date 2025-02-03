@@ -5,7 +5,6 @@ import TimeRangeButtons from "./TimeRangeButtons";
 import StockChart from "./StockChart";
 import { getPolygonParams } from "../../utils/utils";
 import PastPredictions from "./PastPredictions";
-import MarketSentiment from "./MarketSentiment";
 
 const Dashboard = () => {
   const [ticker, setTicker] = useState("");
@@ -18,53 +17,46 @@ const Dashboard = () => {
   const [pastPredictions, setPastPredictions] = useState([]);
 
   useEffect(() => {
-    const storedPredictions =
-      JSON.parse(localStorage.getItem("pastPredictions")) || [];
+    const storedPredictions = JSON.parse(localStorage.getItem("pastPredictions")) || [];
     setPastPredictions(storedPredictions);
   }, []);
 
-  const fetchStockData = async (range = timeRange, symbol = ticker) => {
-    // Ensure range defaults to current timeRange
+  const fetchStockData = async (range = timeRange, symbol = ticker) => { // Ensure range defaults to current timeRange
     try {
       setError("");
       setStockData(null);
-
+  
       console.log(`Fetching stock data for: ${symbol}, Range: ${range}`); // Debugging log
-
+  
       const { multiplier, timespan, from, to } = getPolygonParams(range);
-
+    
       if (!multiplier || !timespan || !from || !to) {
         throw new Error("Invalid time range");
       }
-
+  
       const polygonURL = `https://api.polygon.io/v2/aggs/ticker/${symbol.toUpperCase()}/range/${multiplier}/${timespan}/${from}/${to}?adjusted=true&sort=asc&limit=5000&apiKey=${
         process.env.REACT_APP_POLYGON_API_KEY
       }`;
-
+  
       const response = await fetch(polygonURL);
-      if (!response.ok)
-        throw new Error(`Request failed with status ${response.status}`);
-
+      if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+  
       const data = await response.json();
-      if (!data.results || !Array.isArray(data.results))
-        throw new Error("No valid data returned");
-
+      if (!data.results || !Array.isArray(data.results)) throw new Error("No valid data returned");
+  
       const results = data.results;
-
+  
       const allLabels = results.map((bar) => {
         const dateObj = new Date(bar.t);
         return range === "1D"
-          ? dateObj.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })
+          ? dateObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
           : dateObj.toLocaleDateString();
       });
-
+  
       const allData = results.map((bar) => bar.o);
-
+  
       const latestPrice = results[results.length - 1].c;
-
+  
       setStockData({
         labels: allLabels,
         datasets: [
@@ -78,7 +70,7 @@ const Dashboard = () => {
           },
         ],
       });
-
+  
       setCurrentPrice(latestPrice);
     } catch (err) {
       console.error("Error fetching stock data:", err.message);
@@ -98,10 +90,7 @@ const Dashboard = () => {
         body: JSON.stringify({ ticker }),
       });
 
-      if (!response.ok)
-        throw new Error(
-          `Prediction request failed with status ${response.status}`
-        );
+      if (!response.ok) throw new Error(`Prediction request failed with status ${response.status}`);
 
       const data = await response.json();
       if (data.error) throw new Error(data.error);
@@ -115,15 +104,9 @@ const Dashboard = () => {
         date: new Date().toLocaleString(),
       };
 
-      const updatedPredictions = [newPrediction, ...pastPredictions].slice(
-        0,
-        5
-      ); // Keep last 5 predictions
+      const updatedPredictions = [newPrediction, ...pastPredictions].slice(0, 5); // Keep last 5 predictions
       setPastPredictions(updatedPredictions);
-      localStorage.setItem(
-        "pastPredictions",
-        JSON.stringify(updatedPredictions)
-      );
+      localStorage.setItem("pastPredictions", JSON.stringify(updatedPredictions));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -153,6 +136,7 @@ const Dashboard = () => {
             Analyze stock data and get AI-powered predictions!
           </p>
         </motion.header>
+
         {/* Input & Controls */}
         <motion.div
           className="flex flex-col md:flex-row items-center justify-center gap-4"
@@ -187,6 +171,7 @@ const Dashboard = () => {
             {loadingPrediction ? "Loading..." : "Get Prediction"}
           </motion.button>
         </motion.div>
+
         {/* Time Range Buttons */}
         <motion.div
           className="flex flex-wrap justify-center items-center gap-4"
@@ -200,6 +185,7 @@ const Dashboard = () => {
             fetchStockData={fetchStockData}
           />
         </motion.div>
+
         {/* Error or Labels */}
         {error && (
           <motion.p
@@ -210,6 +196,7 @@ const Dashboard = () => {
             {error}
           </motion.p>
         )}
+
         {currentPrice && (
           <motion.div
             className="bg-gray-100 dark:bg-white/10 p-4 rounded-md shadow-md text-center"
@@ -230,6 +217,7 @@ const Dashboard = () => {
             </p>
           </motion.div>
         )}
+
         {prediction && (
           <motion.div
             className="bg-gray-100 dark:bg-white/10 p-6 rounded-md shadow-lg text-center"
@@ -272,6 +260,8 @@ const Dashboard = () => {
             </motion.p>
           </motion.div>
         )}
+
+
         {/* Stock Chart */}
         {stockData && (
           <motion.div
@@ -287,14 +277,10 @@ const Dashboard = () => {
             />
           </motion.div>
         )}
-        {ticker && <MarketSentiment ticker={ticker} />}
       </div>
-      <PastPredictions
-        pastPredictions={pastPredictions}
-        onSelectPrediction={fetchStockData}
-        range={timeRange}
-      />
+      <PastPredictions pastPredictions={pastPredictions} onSelectPrediction={fetchStockData} range={timeRange}/>
     </motion.div>
+    
   );
 };
 
